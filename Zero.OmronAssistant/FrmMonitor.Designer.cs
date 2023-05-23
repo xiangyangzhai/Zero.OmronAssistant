@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.dgvVariables = new System.Windows.Forms.DataGridView();
+            this.btnStart = new System.Windows.Forms.Button();
+            this.btnEnd = new System.Windows.Forms.Button();
+            this.btnFreeze = new System.Windows.Forms.Button();
+            this.btnRefresh = new System.Windows.Forms.Button();
             this.txtName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DataType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Address = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -37,10 +41,6 @@
             this.RW = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.POU = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnStart = new System.Windows.Forms.Button();
-            this.btnEnd = new System.Windows.Forms.Button();
-            this.btnFreeze = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvVariables)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,53 +63,6 @@
             this.dgvVariables.RowTemplate.Height = 23;
             this.dgvVariables.Size = new System.Drawing.Size(1342, 583);
             this.dgvVariables.TabIndex = 0;
-            // 
-            // txtName
-            // 
-            this.txtName.DataPropertyName = "Name";
-            this.txtName.HeaderText = "Name";
-            this.txtName.Name = "txtName";
-            // 
-            // DataType
-            // 
-            this.DataType.DataPropertyName = "DataType";
-            this.DataType.HeaderText = "DataType";
-            this.DataType.Name = "DataType";
-            // 
-            // Address
-            // 
-            this.Address.DataPropertyName = "Address";
-            this.Address.HeaderText = "Address";
-            this.Address.Name = "Address";
-            // 
-            // Comment
-            // 
-            this.Comment.HeaderText = "Comment";
-            this.Comment.Name = "Comment";
-            // 
-            // TagLink
-            // 
-            this.TagLink.DataPropertyName = "TagLink";
-            this.TagLink.HeaderText = "TagLink";
-            this.TagLink.Name = "TagLink";
-            // 
-            // RW
-            // 
-            this.RW.DataPropertyName = "RW";
-            this.RW.HeaderText = "RW";
-            this.RW.Name = "RW";
-            // 
-            // POU
-            // 
-            this.POU.DataPropertyName = "POU";
-            this.POU.HeaderText = "POU";
-            this.POU.Name = "POU";
-            // 
-            // Value
-            // 
-            this.Value.DataPropertyName = "Value";
-            this.Value.HeaderText = "Value";
-            this.Value.Name = "Value";
             // 
             // btnStart
             // 
@@ -151,6 +104,54 @@
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
+            // txtName
+            // 
+            this.txtName.DataPropertyName = "Name";
+            this.txtName.HeaderText = "Name";
+            this.txtName.Name = "txtName";
+            // 
+            // DataType
+            // 
+            this.DataType.DataPropertyName = "DataType";
+            this.DataType.HeaderText = "DataType";
+            this.DataType.Name = "DataType";
+            // 
+            // Address
+            // 
+            this.Address.DataPropertyName = "Address";
+            this.Address.HeaderText = "Address";
+            this.Address.Name = "Address";
+            // 
+            // Comment
+            // 
+            this.Comment.DataPropertyName = "Comment";
+            this.Comment.HeaderText = "Comment";
+            this.Comment.Name = "Comment";
+            // 
+            // TagLink
+            // 
+            this.TagLink.DataPropertyName = "TagLink";
+            this.TagLink.HeaderText = "TagLink";
+            this.TagLink.Name = "TagLink";
+            // 
+            // RW
+            // 
+            this.RW.DataPropertyName = "RW";
+            this.RW.HeaderText = "RW";
+            this.RW.Name = "RW";
+            // 
+            // POU
+            // 
+            this.POU.DataPropertyName = "POU";
+            this.POU.HeaderText = "POU";
+            this.POU.Name = "POU";
+            // 
+            // Value
+            // 
+            this.Value.DataPropertyName = "Value";
+            this.Value.HeaderText = "Value";
+            this.Value.Name = "Value";
+            // 
             // FrmMonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -177,6 +178,8 @@
         private System.Windows.Forms.DataGridView dgvVariables;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnEnd;
+        private System.Windows.Forms.Button btnFreeze;
+        private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.DataGridViewTextBoxColumn txtName;
         private System.Windows.Forms.DataGridViewTextBoxColumn DataType;
         private System.Windows.Forms.DataGridViewTextBoxColumn Address;
@@ -185,7 +188,5 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn RW;
         private System.Windows.Forms.DataGridViewTextBoxColumn POU;
         private System.Windows.Forms.DataGridViewTextBoxColumn Value;
-        private System.Windows.Forms.Button btnFreeze;
-        private System.Windows.Forms.Button btnRefresh;
     }
 }

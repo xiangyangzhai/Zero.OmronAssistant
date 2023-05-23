@@ -11,5 +11,8 @@ namespace Zero.OmronAssistant
     {
         // 创建一个全局plc对象，包含所有的Variables.txt中的全局变量
         public static List<PLCVariable> PLCVariables = new List<PLCVariable>();
+
+        //创建一个全局变量用来作为datagridview的数据源
+        public static List<PLCVariable> PLCVariables_Show;
     }
 }

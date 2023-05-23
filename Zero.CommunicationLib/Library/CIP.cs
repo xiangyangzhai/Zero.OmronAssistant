@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Zero.CommunicationLib.Base;
+using Zero.DataConvertLib;
 
 namespace Zero.CommunicationLib.Library
 {
-    public class CIP
+    public class CIP: NetDeviceBase
     {
+        /// <summary>
+        /// 构造方法，欧姆龙PLC的大小端默认是CDAB
+        /// </summary>
+        /// <param name="dataFormat"></param>
+        public CIP(DataFormat dataFormat=DataFormat.CDAB) 
+        {
+            this.DataFormat = dataFormat;
+        }
         //注册会话ID
         private byte[] Registercmd = new byte[28]
         {

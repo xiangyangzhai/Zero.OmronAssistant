@@ -20,7 +20,7 @@ namespace Zero.OmronAssistant
 
             dgvVariables.AutoGenerateColumns = false;
             //将CommonMethods.PLCVariables作为dgvVariables的数据源
-            this.dgvVariables.DataSource = CommonMethods.PLCVariables;
+            this.dgvVariables.DataSource = CommonMethods.PLCVariables_Show;
             this.updateTimer.Interval = 2000;
             this.updateTimer.Tick += UpdateTimer_Tick;
 
@@ -74,7 +74,7 @@ namespace Zero.OmronAssistant
             //    this.dgvVariables.DataSource = CommonMethods.PLCVariables;
             //}
             this.dgvVariables.DataSource = null;
-            this.dgvVariables.DataSource = CommonMethods.PLCVariables;
+            this.dgvVariables.DataSource = CommonMethods.PLCVariables_Show;
 
         }
 

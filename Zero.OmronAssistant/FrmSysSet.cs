@@ -75,6 +75,7 @@ namespace Zero.OmronAssistant
 
                         variablesContent = reader.ReadToEnd();
                     }
+                    CommonMethods.PLCVariables_Show = CommonMethods.PLCVariables;
                 }
                 catch (Exception)
                 {
