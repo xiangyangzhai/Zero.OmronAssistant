@@ -38,7 +38,7 @@ namespace Zero.ControlLib
             }
         }
 
-        private string   titleText = "新阁教育";
+        private string   titleText = "HeadPanel";
         [Browsable(true)]
         [Category("自定义属性")]
         [Description("设置或获取标题文本")]

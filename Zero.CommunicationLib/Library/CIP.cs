@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Configuration;
 using Zero.CommunicationLib.Base;
 using Zero.DataConvertLib;
+using Zero.Models;
 
 namespace Zero.CommunicationLib.Library
 {
-    public class CIP: NetDeviceBase
+    public class CIP : NetDeviceBase
     {
         /// <summary>
         /// 构造方法，欧姆龙PLC的大小端默认是CDAB
         /// </summary>
         /// <param name="dataFormat"></param>
-        public CIP(DataFormat dataFormat=DataFormat.CDAB) 
+        public CIP(DataFormat dataFormat = DataFormat.CDAB)
         {
             this.DataFormat = dataFormat;
         }
@@ -65,7 +63,7 @@ namespace Zero.CommunicationLib.Library
         /// <summary>
         /// 从应答报文提取的会话ID，后续读写PLC的报文中，需要包含PLC返回的会话ID
         /// </summary>
-        public byte[] SessionHandle = new byte[4] { 0x6B, 0x01, 0x01, 0x00 };
+        //public byte[] SessionHandle = new byte[4] { 0x6B, 0x01, 0x01, 0x00 };
 
         #endregion
 
@@ -119,17 +117,196 @@ namespace Zero.CommunicationLib.Library
 
         #endregion
 
+        //todo:1. 规范报文字段命名
+        //todo:2. 添加报文字段
+        //todo:3. 
+
+        /// <summary>
+        /// 标签名称
+        /// </summary>
+        public string TagName { get; set; }
+
+        /// <summary>
+        /// 标签值
+        /// </summary>
+        public string TagValue { get; set; }
+
+        /// <summary>
+        /// 标签值类型
+        /// </summary>
+        public string TagType { get; set; }
+
+        /// <summary>
+        /// 命令码
+        /// </summary>
+        private byte[] Command = new byte[] { 0x6F, 0x00 };
+
+        /// <summary>
+        /// 报文头之后的消息长度
+        /// </summary>
+        private byte[] Length = new byte[] { 0x04, 0x00 };
+
+        /// <summary>
+        /// 会话句柄
+        /// </summary>
+        private byte[] SessionHandle = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+
+        /// <summary>
+        /// 状态码
+        /// </summary>
+        private byte[] Status = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+
+        /// <summary>
+        /// 发送方描述
+        /// </summary>
+        private byte[] SenderContext = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+        /// <summary>
+        /// 选项
+        /// </summary>
+        private byte[] Options = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+
+        /// <summary>
+        /// 协议版本
+        /// </summary>
+        private byte[] ProtocolVersion = new byte[] { 0x01, 0x00 };
+
+        /// <summary>
+        /// 选项标记
+        /// </summary>
+        private byte[] OptionID = new byte[] { 0x00, 0x00 };
+
+        /// <summary>
+        /// 接口句柄,0 0 0 0 代表CIP
+        /// </summary>
+        private byte[] InterfaceHandle = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+
+        /// <summary>
+        /// 超时
+        /// </summary>
+        private byte[] Timeout = new byte[] { 0x01, 0x00 };
+
+        /// <summary>
+        /// 项数
+        /// </summary>
+        private byte[] ItemCount = new byte[] {0x02, 0x00};
+
+        /// <summary>
+        /// 空地址项
+        /// </summary>
+        private byte[] AddressType= new byte[] {0x00, 0x00};
+
+        /// <summary>
+        /// 空地址项长度
+        /// </summary>
+        private byte[] AddressLength = new byte[] { 0x00, 0x00 };
+
+        /// <summary>
+        /// 数据类型
+        /// </summary>
+        private byte[] DataType = new byte[] {0xB2, 0x00};
+
+        /// <summary>
+        /// 数据长度
+        /// </summary>
+        private byte[] DataLength = new byte[] { 0x00, 0x00 };
+
+        /// <summary>
+        /// 命令
+        /// </summary>
+        private byte ControlCode = 0x52;
+
+        /// <summary>
+        /// 请求路径长度
+        /// </summary>
+        private byte RouterLength = 0x02;
+
+        /// <summary>
+        /// 默认请求路径
+        /// </summary>
+        private byte[] DefaultRoutePath = new byte[] { 0x20, 0x06, 0x24, 0x01 };
+
+        /// <summary>
+        /// 默认超时
+        /// </summary>
+        private byte[] DefaultTimeout = new byte[] { 0x0A, 0xF0, 0x0A, 0x00 };
+
+        /// <summary>
+        /// 服务标识
+        /// </summary>
+        private byte ServiceID = 0x4C;
+
+
+        private byte CIPLength = 0x03;
+
         // 构建注册请求报文
+        private OperateResult<byte[]> BuildRegisteSessionFrame()
+        {
+            ByteArray SendCommand = new ByteArray();
+
+            //CommandCode
+            SendCommand.Add(new byte[] { 0x65, 0x00 });
+
+            //MessageLength
+            SendCommand.Add(Length);
+
+            SendCommand.Add(SessionHandle);
+
+            SendCommand.Add(Status);
+
+            SendCommand.Add(SenderContext);
+
+            SendCommand.Add(Options);
+
+            SendCommand.Add(ProtocolVersion);
+
+            SendCommand.Add(OptionID);
+
+            return OperateResult.CreateSuccessResult(SendCommand.array);
+        }
 
         // 构建注销请求报文
+        private OperateResult<byte[]> BuildUnRegisteSessionFrame()
+        {
+            ByteArray SendCommand = new ByteArray();
+
+            //CommandCode
+            SendCommand.Add(new byte[] { 0x66, 0x00 });
+
+            //MessageLength
+            SendCommand.Add(new byte[] { 0x00, 0x00 });
+
+            SendCommand.Add(SessionHandle);
+
+            //StateCode
+            SendCommand.Add(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+
+            //SendContext
+            SendCommand.Add(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+
+            //Option
+            SendCommand.Add(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+
+            return OperateResult.CreateSuccessResult(SendCommand.array);
+        }
 
         // 构建写入单标签报文
+        private OperateResult<byte[]> BuildWriteSingleTagFrame(string tagName, string tagType, string tagValue)
+        {
+            throw new NotImplementedException();
+        }
 
         // 构建读取单标签报文
-
-        // 构建写入多标签报文
+        private OperateResult<byte[]> BuildReadSingleTagFrame(string tagName, string tagType)
+        {
+            throw new NotImplementedException();
+        }
 
         // 构建读取多标签报文
+        private OperateResult<byte[]> BuildReadTagsFrame(string tagName, string tagType, string tagValue)
+        {
+            throw new NotImplementedException();
+        }
 
         // 注册请求
 
@@ -139,14 +316,12 @@ namespace Zero.CommunicationLib.Library
 
         // 读取单标签
 
-        // 写入多标签
-
         // 读取多标签
 
         // 解析写入数据
 
         // 解析读取数据
 
-        
+
     }
 }
