@@ -169,6 +169,10 @@
       <Project>{946ac9cd-b7d1-4db6-9916-ae5c4d25c427}</Project>
       <Name>Zero.BLL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Zero.CommunicationLib\Zero.CommunicationLib.csproj">
+      <Project>{aca31bae-3e02-4b31-9886-83a6017570d9}</Project>
+      <Name>Zero.CommunicationLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Zero.ControlLib\Zero.ControlLib.csproj">
       <Project>{4f0ae0bf-1d78-4e12-9474-8f2d1581c0d9}</Project>
       <Name>Zero.ControlLib</Name>

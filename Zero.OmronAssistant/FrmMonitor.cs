@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
 using Zero.ControlLib;
+using Zero.CommunicationLib;
+using Zero.CommunicationLib.Library;
 
 namespace Zero.OmronAssistant
 {
@@ -27,6 +29,8 @@ namespace Zero.OmronAssistant
 
             this.Load += FrmMonitor_Load;
         }
+
+        private CIP _cip = new CIP();
 
         private CancellationTokenSource _tokenSource;
 
