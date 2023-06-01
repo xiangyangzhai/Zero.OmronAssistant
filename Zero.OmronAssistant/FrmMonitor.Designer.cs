@@ -64,6 +64,9 @@
             this.txtTagValueForWrite = new System.Windows.Forms.TextBox();
             this.txtTagNameForWrite = new System.Windows.Forms.TextBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.btnSaveJson = new System.Windows.Forms.Button();
+            this.btnRestore = new System.Windows.Forms.Button();
+            this.btnStopRestore = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvVariables)).BeginInit();
             this.PanelCommunication.SuspendLayout();
             this.PanelTest.SuspendLayout();
@@ -140,27 +143,27 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(1072, 13);
+            this.btnStart.Location = new System.Drawing.Point(837, 12);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 34);
             this.btnStart.TabIndex = 1;
-            this.btnStart.Text = "开始通信";
+            this.btnStart.Text = "开始读取";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // btnEnd
             // 
-            this.btnEnd.Location = new System.Drawing.Point(1153, 12);
+            this.btnEnd.Location = new System.Drawing.Point(918, 11);
             this.btnEnd.Name = "btnEnd";
             this.btnEnd.Size = new System.Drawing.Size(75, 35);
             this.btnEnd.TabIndex = 1;
-            this.btnEnd.Text = "停止通信";
+            this.btnEnd.Text = "停止读取";
             this.btnEnd.UseVisualStyleBackColor = true;
             this.btnEnd.Click += new System.EventHandler(this.btnEnd_Click);
             // 
             // btnFreeze
             // 
-            this.btnFreeze.Location = new System.Drawing.Point(991, 13);
+            this.btnFreeze.Location = new System.Drawing.Point(756, 12);
             this.btnFreeze.Name = "btnFreeze";
             this.btnFreeze.Size = new System.Drawing.Size(75, 34);
             this.btnFreeze.TabIndex = 1;
@@ -170,7 +173,7 @@
             // 
             // btnRefresh
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(910, 13);
+            this.btnRefresh.Location = new System.Drawing.Point(675, 12);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(75, 34);
             this.btnRefresh.TabIndex = 1;
@@ -423,6 +426,36 @@
             this.progressBar1.Value = 20;
             this.progressBar1.Visible = false;
             // 
+            // btnSaveJson
+            // 
+            this.btnSaveJson.Location = new System.Drawing.Point(999, 12);
+            this.btnSaveJson.Name = "btnSaveJson";
+            this.btnSaveJson.Size = new System.Drawing.Size(103, 35);
+            this.btnSaveJson.TabIndex = 1;
+            this.btnSaveJson.Text = "保存读取结果";
+            this.btnSaveJson.UseVisualStyleBackColor = true;
+            this.btnSaveJson.Click += new System.EventHandler(this.btnSaveJson_Click);
+            // 
+            // btnRestore
+            // 
+            this.btnRestore.Location = new System.Drawing.Point(1108, 12);
+            this.btnRestore.Name = "btnRestore";
+            this.btnRestore.Size = new System.Drawing.Size(120, 35);
+            this.btnRestore.TabIndex = 1;
+            this.btnRestore.Text = "恢复PLC变量值";
+            this.btnRestore.UseVisualStyleBackColor = true;
+            this.btnRestore.Click += new System.EventHandler(this.btnRestore_Click);
+            // 
+            // btnStopRestore
+            // 
+            this.btnStopRestore.Location = new System.Drawing.Point(1234, 12);
+            this.btnStopRestore.Name = "btnStopRestore";
+            this.btnStopRestore.Size = new System.Drawing.Size(120, 35);
+            this.btnStopRestore.TabIndex = 1;
+            this.btnStopRestore.Text = "停止恢复PLC";
+            this.btnStopRestore.UseVisualStyleBackColor = true;
+            this.btnStopRestore.Click += new System.EventHandler(this.btnStopRestore_Click);
+            // 
             // FrmMonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -432,6 +465,9 @@
             this.Controls.Add(this.headPanel1);
             this.Controls.Add(this.PanelTest);
             this.Controls.Add(this.PanelCommunication);
+            this.Controls.Add(this.btnStopRestore);
+            this.Controls.Add(this.btnRestore);
+            this.Controls.Add(this.btnSaveJson);
             this.Controls.Add(this.btnEnd);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.btnFreeze);
@@ -492,5 +528,8 @@
         private System.Windows.Forms.TextBox txtTagValueForWrite;
         private System.Windows.Forms.TextBox txtTagNameForWrite;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button btnSaveJson;
+        private System.Windows.Forms.Button btnRestore;
+        private System.Windows.Forms.Button btnStopRestore;
     }
 }

@@ -6,6 +6,8 @@ using System.Text;
 using Zero.CommunicationLib.Base;
 using Zero.Models;
 using Zero.DataConvertLib;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Zero.CommunicationLib.Library
 {
@@ -302,7 +304,14 @@ namespace Zero.CommunicationLib.Library
             ArrayList Var6 = new ArrayList(TagStringToAscii);
             Cip_Msg.AddRange(Var6);//添加标签 
             Cip_Msg.AddRange(getBytesFromTagType(tagType)); // 数据类型
-            Cip_Msg.Add((byte)0x01); Cip_Msg.Add((byte)0x00); // 写入数量
+            if (tagType == "STRING")
+            {
+                Cip_Msg.Add((byte)tagValue.Length); Cip_Msg.Add((byte)0x00); // 写入数量
+            }
+            else
+            {
+                Cip_Msg.Add((byte)0x01); Cip_Msg.Add((byte)0x00); // 写入数量
+            }
             Cip_Msg.AddRange(getBytesFromTagValue(tagType,tagValue));  // 写入的值
             ArrayList Slot = new ArrayList { (byte)0x01, (byte)0x00, (byte)0x01, (byte)0x00 }; //槽号
             ArrayList Cip_Msg0 = new ArrayList();
@@ -355,8 +364,10 @@ namespace Zero.CommunicationLib.Library
                 switch (CIP_Data_Type)
                 {
                     case CIP_Data_Type.BOOL:
-                        return BitConverter.GetBytes((short)(tagValue=="FALSE"?0:1));
+                        
+                        return BitConverter.GetBytes((short)((tagValue != null && string.Equals(tagValue, "TRUE", StringComparison.OrdinalIgnoreCase)) ? 1 : 0));
                     case CIP_Data_Type.BYTE:
+                    case CIP_Data_Type.USINT:
                         byte outByte;
                         Byte.TryParse(tagValue, out outByte);
                         byte[] result = new byte[] { outByte };
@@ -371,6 +382,7 @@ namespace Zero.CommunicationLib.Library
                         ushort.TryParse(tagValue, out outUShort);
                         return BitConverter.GetBytes(outUShort);
                     case CIP_Data_Type.DINT:
+                    
                         int outInt;
                         int.TryParse(tagValue, out outInt);
                         return BitConverter.GetBytes(outInt);
@@ -388,7 +400,19 @@ namespace Zero.CommunicationLib.Library
                         double.TryParse(tagValue, out outDouble);
                         return BitConverter.GetBytes(outDouble);
                     case CIP_Data_Type.STRING:
-                        return Encoding.Default.GetBytes(tagValue);
+                        List<byte> result_bytes = new List<byte>();
+                        foreach(var item in tagValue)
+                        {
+                            byte[] res = getBytesFromTagValue("BYTE", item.ToString());
+                            result_bytes.AddRange(res);
+                        }
+                        return result_bytes.ToArray();
+
+                    case CIP_Data_Type.TIME:
+                    case CIP_Data_Type.ULINT:
+                        ulong outULong;
+                        ulong.TryParse(tagValue, out outULong);
+                        return BitConverter.GetBytes(outULong);
                     default:
                         return new byte[] { 0x01, 0x00 };
                 }
@@ -422,6 +446,8 @@ namespace Zero.CommunicationLib.Library
                         return new byte[] { 0xC7, 0x00 };
                     case CIP_Data_Type.UDINT:
                         return new byte[] { 0xC8, 0x00 };
+                    case CIP_Data_Type.ULINT:
+                        return new byte[] {0xC9, 0x00 };
                     case CIP_Data_Type.REAL:
                         return new byte[] { 0xCA, 0x00 };
                     //case CIP_Data_Type.BIT_STRING:
@@ -446,9 +472,8 @@ namespace Zero.CommunicationLib.Library
                         return new byte[] { 0xD1, 0x00 };
                     case CIP_Data_Type.STRUCT:
                         return new byte[] { 0xCC, 0x00 };
-                    //case CIP_Data_Type.UNKNOWN:
-                    //    return new byte[] { 0x00, 0x00 };
-                    
+                    case CIP_Data_Type.TIME:
+                        return new byte[] {0x09, 0x00 };
                     default:
                         return new byte[] { 0x00, 0x00 };
                 }
@@ -707,11 +732,13 @@ namespace Zero.CommunicationLib.Library
                     }
                     //状态 2字节
                     index_inner = index_inner + 2;
-
-                    int tagType = ((short)response[index_inner + 1] & 0x00ff) | ((short)response[index_inner + 2] << 8);
                     //数据类型 2字节
+                    int tagType = ((short)response[index_inner + 1] & 0x00ff) | ((short)response[index_inner + 2] << 8);
                     index_inner = index_inner + 2;
-                    
+                    //数据长度 2字节
+
+
+
                     switch (tagType)
                     {//判断数据类型 
                         case 0x00c1:
@@ -762,6 +789,12 @@ namespace Zero.CommunicationLib.Library
                             index_inner = index_inner + 4;
                             i = index_inner;
                             return var22.ToString();
+                        case 0x00c9:
+                            //ulint
+                            ulong var23 = BitConverter.ToUInt64(ByteArrayLib.Get8BytesFromByteArray(response, index_inner + 1, DataFormat.DCBA), 0);
+                            index_inner = index_inner + 4;
+                            i = index_inner;
+                            return var23.ToString();
                         case 0x00CA:
                             //实型real
                             int var13 = ((short)response[index_inner + 1] & 0x00ff) | ((short)response[index_inner + 2] << 8);
@@ -781,12 +814,27 @@ namespace Zero.CommunicationLib.Library
                             i = index_inner;
                             return var24.ToString();
                         case 0x00d1:
+                        case 0x00c6:
                             //Byte型数据
+                            //usint
                             byte var7 = response[index_inner + 1];
 
                             index_inner = index_inner + 1;
                             i = index_inner;
                             return var7.ToString();
+                        case 0x0009:
+                            // time
+                            ulong var30 = BitConverter.ToUInt64 (ByteArrayLib.Get8BytesFromByteArray(response, index_inner + 1, DataFormat.DCBA), 0);
+
+                            index_inner = index_inner + 8;
+                            i = index_inner;
+                            return var30.ToString();
+                        case 0x00d0:
+                            // string
+                            int stringlength= BitConverter.ToInt16(ByteArrayLib.Get2BytesFromByteArray(response,index_inner+1,DataFormat.DCBA),0);
+                            index_inner = index_inner + 2;
+
+                            return Encoding.Default.GetString(response, index_inner+1, stringlength);
                         default:
                             return "读取失败";
                     }
@@ -800,7 +848,22 @@ namespace Zero.CommunicationLib.Library
 
         // 解析写入数据
 
-        
+        // 解析数组数据类型
+        public static OperateResult<string,int,int> ParseTagType(string tagType)
+        {
+            var match = Regex.Match(tagType, @"(?<datatype>\w+)\[(?<start>\d+)\.\.(?<end>\d+)\]");
+            if (!match.Success)
+            {
+                throw new FormatException("Invalid input format.");
+            }
+
+            return new OperateResult<string, int, int>
+            {
+                Content1 = match.Groups["datatype"].Value,
+                Content2 = int.Parse(match.Groups["start"].Value),
+                Content3 = int.Parse(match.Groups["end"].Value),
+            };
+        }
 
 
     }

@@ -108,6 +108,7 @@ namespace Zero.CommunicationLib
 
     public enum CIP_Data_Type
     {
+        TIME = 0x09,
         BOOL = 0xc1,
         SINT = 0xc2,
         INT = 0xc3,
@@ -134,7 +135,6 @@ namespace Zero.CommunicationLib
         ITIME = 0xd8,
         STRINGN = 0xd9,
         SHORT_STRING = 0xda,
-        TIME = 0xdb,
         EPATH = 0xdc,
         ENGUNIT = 0xdd,
         STRINGI = 0xde,

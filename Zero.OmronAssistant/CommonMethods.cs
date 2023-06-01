@@ -14,5 +14,8 @@ namespace Zero.OmronAssistant
 
         //创建一个全局变量用来作为datagridview的数据源
         public static List<PLCVariable> PLCVariables_Show;
+
+        // 创建一个全局变量用来作为从JSON文件恢复的列表
+        public static List<PLCVariable> PLCVariables_JSON;
     }
 }

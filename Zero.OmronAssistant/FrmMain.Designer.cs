@@ -28,19 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.TopPanel = new System.Windows.Forms.Panel();
-            this.BottomPanel = new System.Windows.Forms.Panel();
-            this.MainPanel = new System.Windows.Forms.Panel();
             this.naviBtn_CloseWindow = new Zero.ControlLib.NaviButton();
             this.naviBtn_Info = new Zero.ControlLib.NaviButton();
             this.naviBtn_Settings = new Zero.ControlLib.NaviButton();
             this.naviBtn_Main = new Zero.ControlLib.NaviButton();
+            this.BottomPanel = new System.Windows.Forms.Panel();
+            this.MainPanel = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.TopPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // TopPanel
             // 
             this.TopPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(69)))), ((int)(((byte)(163)))));
+            this.TopPanel.Controls.Add(this.label1);
             this.TopPanel.Controls.Add(this.naviBtn_CloseWindow);
             this.TopPanel.Controls.Add(this.naviBtn_Info);
             this.TopPanel.Controls.Add(this.naviBtn_Settings);
@@ -52,23 +55,6 @@
             this.TopPanel.TabIndex = 0;
             this.TopPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Panel_MouseDown);
             this.TopPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Panel_MouseMove);
-            // 
-            // BottomPanel
-            // 
-            this.BottomPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(69)))), ((int)(((byte)(163)))));
-            this.BottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomPanel.Location = new System.Drawing.Point(0, 728);
-            this.BottomPanel.Name = "BottomPanel";
-            this.BottomPanel.Size = new System.Drawing.Size(1366, 40);
-            this.BottomPanel.TabIndex = 1;
-            // 
-            // MainPanel
-            // 
-            this.MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainPanel.Location = new System.Drawing.Point(0, 80);
-            this.MainPanel.Name = "MainPanel";
-            this.MainPanel.Size = new System.Drawing.Size(1366, 648);
-            this.MainPanel.TabIndex = 2;
             // 
             // naviBtn_CloseWindow
             // 
@@ -138,6 +124,33 @@
             this.naviBtn_Main.Size = new System.Drawing.Size(68, 80);
             this.naviBtn_Main.TabIndex = 0;
             // 
+            // BottomPanel
+            // 
+            this.BottomPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(69)))), ((int)(((byte)(163)))));
+            this.BottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.BottomPanel.Location = new System.Drawing.Point(0, 728);
+            this.BottomPanel.Name = "BottomPanel";
+            this.BottomPanel.Size = new System.Drawing.Size(1366, 40);
+            this.BottomPanel.TabIndex = 1;
+            // 
+            // MainPanel
+            // 
+            this.MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainPanel.Location = new System.Drawing.Point(0, 80);
+            this.MainPanel.Name = "MainPanel";
+            this.MainPanel.Size = new System.Drawing.Size(1366, 648);
+            this.MainPanel.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(12, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(319, 41);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Omron EIP 调试助手";
+            // 
             // FrmMain
             // 
             this.ClientSize = new System.Drawing.Size(1366, 768);
@@ -146,9 +159,11 @@
             this.Controls.Add(this.TopPanel);
             this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmMain";
             this.Load += new System.EventHandler(this.FrmMain_Load);
             this.TopPanel.ResumeLayout(false);
+            this.TopPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -162,6 +177,7 @@
         private ControlLib.NaviButton naviBtn_Settings;
         private ControlLib.NaviButton naviBtn_CloseWindow;
         private ControlLib.NaviButton naviBtn_Info;
+        private System.Windows.Forms.Label label1;
     }
 }
 

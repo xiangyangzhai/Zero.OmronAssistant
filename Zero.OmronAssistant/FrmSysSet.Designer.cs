@@ -30,7 +30,6 @@
         {
             this.rtxtVariables = new System.Windows.Forms.RichTextBox();
             this.btnOpen = new System.Windows.Forms.Button();
-            this.btnSave = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // rtxtVariables
@@ -43,7 +42,7 @@
             // 
             // btnOpen
             // 
-            this.btnOpen.Location = new System.Drawing.Point(1077, 10);
+            this.btnOpen.Location = new System.Drawing.Point(1219, 12);
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(135, 28);
             this.btnOpen.TabIndex = 1;
@@ -51,21 +50,11 @@
             this.btnOpen.UseVisualStyleBackColor = true;
             this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(1218, 10);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(135, 28);
-            this.btnSave.TabIndex = 1;
-            this.btnSave.Text = "保存全局变量";
-            this.btnSave.UseVisualStyleBackColor = true;
-            // 
             // FrmSysSet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1366, 648);
-            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.rtxtVariables);
             this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -82,6 +71,5 @@
 
         private System.Windows.Forms.RichTextBox rtxtVariables;
         private System.Windows.Forms.Button btnOpen;
-        private System.Windows.Forms.Button btnSave;
     }
 }
