@@ -53,6 +53,9 @@ namespace Zero.OmronAssistant
                         // 使用制表符（\t）分割每一行的内容
                         var columns = lines[i].Split('\t');
 
+                        // 排除非taglink的标签
+                        //if (columns[5] != "TRUE") continue;
+
                         // 创建一个新的PLC变量实例并设置其属性值
                         PLCVariable plcVariable = new PLCVariable
                         {
@@ -60,7 +63,7 @@ namespace Zero.OmronAssistant
                             DataType = columns[2],
                             Address = columns[3],
                             Comment = columns[4],
-                            TagLink = bool.Parse(columns[5]),
+                            TagLink = columns[5],
                             RW = columns[6],
                             POU = columns[7]
                         };

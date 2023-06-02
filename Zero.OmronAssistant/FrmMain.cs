@@ -21,6 +21,7 @@ namespace Zero.OmronAssistant
         参数设置,
         临界窗体,
         帮助信息,
+        最小化,
         退出系统
     }
     public partial class FrmMain : Form
@@ -96,6 +97,10 @@ namespace Zero.OmronAssistant
                     case FormNames.帮助信息:
                         frm = new FrmHelpInfo();
                         break;
+                    case FormNames.最小化:
+                        // 界面最小化
+                        this.WindowState = FormWindowState.Minimized;
+                        return;
                     case FormNames.退出系统:
                         //不切换窗体
 

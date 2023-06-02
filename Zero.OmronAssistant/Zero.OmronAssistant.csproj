@@ -232,6 +232,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bin\x64\Debug\Image\minimize.png" />
     <None Include="bin\Debug\Image\information.png" />
     <None Include="bin\Debug\Image\communication.png" />
     <None Include="bin\Debug\Image\communication.ico" />

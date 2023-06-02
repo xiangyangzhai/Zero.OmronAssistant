@@ -12,7 +12,7 @@ namespace Zero.Models
         public string DataType { get; set; } = "";
         public string Address { get; set; } = "";
         public string Comment { get; set; } = "";
-        public bool TagLink { get; set; } = false;
+        public string TagLink { get; set; } ="";
         public string RW { get; set; } = "";
         public string POU { get; set; } = "";
         public string Value { get; set; } = "";
