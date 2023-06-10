@@ -42,6 +42,7 @@ namespace Zero.OmronAssistant
 
         private CancellationTokenSource _writeTokenSource;
 
+        private bool isInitializedProgressBar= false;
         public void StartTask()
         {
             // 如果存在旧的 CancellationTokenSource，首先释放它
@@ -160,23 +161,60 @@ namespace Zero.OmronAssistant
             disProgressBar();
         }
 
+        private List<List<PLCVariable>> SplitVariableList(List<PLCVariable> variables, int segments)
+        {
+            var segmentSize = (int)Math.Ceiling((double)variables.Count / segments);
+            return Enumerable.Range(0, segments)
+                .Select(i => variables.Skip(i * segmentSize).Take(segmentSize).ToList())
+                .ToList();
+        }
+
         private void InitionalizeProgressBar(List<PLCVariable> lists)
         {
-            if (progressBar1.InvokeRequired)
+            #region 弃代码
+            //if (!isInitializedProgressBar)
+            //{
+            //    if (progressBar1.InvokeRequired)
+            //    {
+            //        progressBar1.Invoke(new MethodInvoker(delegate
+            //        {
+            //            progressBar1.Maximum = lists.Count;
+            //            progressBar1.Minimum = 0;
+            //            progressBar1.Value = 0;
+            //            isInitializedProgressBar= true;
+            //        }));
+            //    }
+            //    else
+            //    {
+            //        progressBar1.Maximum = lists.Count;
+            //        progressBar1.Minimum = 0;
+            //        progressBar1.Value = 0;
+            //        isInitializedProgressBar = true;
+            //    }
+            //}
+            #endregion
+
+            if (!isInitializedProgressBar)
             {
-                progressBar1.Invoke(new MethodInvoker(delegate
+                Action updateProgressBarAction = () =>
                 {
                     progressBar1.Maximum = lists.Count;
                     progressBar1.Minimum = 0;
                     progressBar1.Value = 0;
-                }));
+                    isInitializedProgressBar = true;
+                };
+
+                if (progressBar1.InvokeRequired)
+                {
+                    progressBar1.Invoke(updateProgressBarAction);
+                }
+                else
+                {
+                    updateProgressBarAction();
+                }
             }
-            else
-            {
-                progressBar1.Maximum = lists.Count;
-                progressBar1.Minimum = 0;
-                progressBar1.Value = 0;
-            }
+
+
         }
 
         private void ShowProgressBar()
@@ -283,7 +321,7 @@ namespace Zero.OmronAssistant
                 MessageBox.Show("请先添加变量");
                 return;
             }
-            this.StartTask();
+            this.StartTasksAsync();
         }
 
         private void btnEnd_Click(object sender, EventArgs e)
@@ -432,7 +470,10 @@ namespace Zero.OmronAssistant
                 //提示保存成功
                 MessageBox.Show("保存成功");
             }
-            MessageBox.Show("读取的值尚未保存");
+            else
+            {
+                MessageBox.Show("读取的值尚未保存");
+            }
         }
 
         private void btnRestore_Click(object sender, EventArgs e)
@@ -602,6 +643,104 @@ namespace Zero.OmronAssistant
 
             // 取消任务
             _writeTokenSource?.Cancel();
+        }
+
+        public async Task StartTasksAsync()
+        {
+            // 如果存在旧的 CancellationTokenSource，首先释放它
+            _tokenSource?.Dispose();
+            // 创建新的 CancellationTokenSource
+            _tokenSource = new CancellationTokenSource();
+
+            var token = _tokenSource.Token;
+
+            // 分割PLC变量列表为五个部分
+            var segments = SplitVariableList(CommonMethods.PLCVariables, 5);
+
+            // 并行执行任务
+            
+            List<Task> tasks = new List<Task>();
+            foreach (var segment in segments)
+            {
+                tasks.Add(Task.Run(() => ReadVariablesData2(segment, token)));
+            }
+
+            await Task.WhenAll(tasks);
+
+            // 所以线程都完成后，弹窗提示
+
+            MessageBox.Show("通信完成");
+
+            disProgressBar();
+
+        }
+
+        private void  ReadVariablesData2(List<PLCVariable> variables, CancellationToken token)
+        {
+            
+
+            // 更新进度条的最大值 最小值 当前值
+            InitionalizeProgressBar(CommonMethods.PLCVariables);
+
+            // 显示进度条
+            ShowProgressBar();
+
+            CIP cIP = new CIP();
+
+            // 连接PLC
+            cIP.Connect(this.txtIP.Text.Trim(), Convert.ToInt32(this.txtPort.Text.Trim()));
+
+            //注册会话
+            cIP.Regist();
+
+            string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string directoryPath = System.IO.Path.GetDirectoryName(assemblyPath);
+            string logFilePath = directoryPath + "\\log\\Read.log";
+
+            string logEntry = string.Empty;
+            // 批量读取PLC变量
+            foreach (var item in variables)
+            {
+                // 利用linq获取 CommonMethods.PLCVariables_Show 中的变量
+                var variable = CommonMethods.PLCVariables_Show.Where(v => v.Name == item.Name).FirstOrDefault();
+
+                // 对变量进行判断，判断是否为数组
+                if (item.DataType.Contains("["))
+                {
+                    var dataType = CIP.ParseTagType(item.DataType);
+
+                    string result = string.Empty;
+                    // 读取PLC数组变量
+                    for (int i = dataType.Content2; i <= dataType.Content3; i++)
+                    {
+                        var res = cIP.ReadSingleTag($"{item.Name}" + "[" + i + "]", dataType.Content1).Content;
+                        result = result + res + ",";
+                        if (res == "读取失败")
+                        {
+                            logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $", {item.Name}" + "[" + i + "]" + ", " + res;
+                            System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                        }
+
+                    }
+                    variable.Value = result;
+                    continue;
+                }
+                // 读取PLC变量
+                variable.Value = cIP.ReadSingleTag(item.Name, item.DataType).Content;
+                if (variable.Value == "读取失败")
+                {
+                    logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ", " + item.Name + ", " + variable.Value;
+                    System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                }
+                // 更新进度条的当前值
+                UpdateProgressBar();
+
+                // 任务被取消
+                token.ThrowIfCancellationRequested();
+            }
+
+            // 断开连接
+            cIP.DisConnect();
         }
     }
 }
