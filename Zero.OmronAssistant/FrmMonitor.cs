@@ -429,9 +429,10 @@ namespace Zero.OmronAssistant
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(file, CommonMethods.PLCVariables_Show);
                 }
+                //提示保存成功
+                MessageBox.Show("保存成功");
             }
-            //提示保存成功
-            MessageBox.Show("保存成功");
+            MessageBox.Show("读取的值尚未保存");
         }
 
         private void btnRestore_Click(object sender, EventArgs e)
