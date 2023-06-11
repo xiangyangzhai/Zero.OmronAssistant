@@ -18,6 +18,7 @@ using System.IO;
 using System.Collections;
 using Zero.Models;
 using System.Configuration.Assemblies;
+using log4net.Config;
 
 namespace Zero.OmronAssistant
 {
@@ -298,6 +299,11 @@ namespace Zero.OmronAssistant
             this.StartTick();
             this.btnRegist.Enabled = false;
             this.btnDisConnect.Enabled = false;
+
+            // 加载log4net配置文件
+            //string logConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log4net.config");
+            //XmlConfigurator.ConfigureAndWatch(new FileInfo(logConfigPath));
+            log4net.Config.XmlConfigurator.Configure();
         }
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
@@ -585,7 +591,7 @@ namespace Zero.OmronAssistant
                 if (item.Name.Contains("[") && item.Name[item.Name.Length - 1] != ']' && !item.DataType.Contains("["))
                 {
                     result = cip.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                    logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+                    logEntry =  LogToText2(logFilePath, result, logEntry, item);
                     continue;
                 }
                 // 对变量进行判断，判断是否为数组
@@ -601,14 +607,14 @@ namespace Zero.OmronAssistant
                     for (int i = dataType.Content2; i <= dataType.Content3; i++)
                     {
                         result = cip.WriteSingleTag($"{item.Name}" + "[" + i + "]", dataType.Content1, values[i - dataType.Content2]).Content;
-                        logEntry = await LogToTextAsync(logFilePath, result, logEntry, item, i);
+                        logEntry = LogToText(logFilePath, result, logEntry, item, i);
 
                     }
                     continue;
                 }
                 // 写入PLC变量
                 result = cip.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+                logEntry =  LogToText2(logFilePath, result, logEntry, item);
                 
 
                 // 任务被取消
@@ -628,10 +634,11 @@ namespace Zero.OmronAssistant
             {
                 logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ", " + item.Name + ", " + "写入失败";
                 //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
-                using (StreamWriter writer = new StreamWriter(logFilePath))
-                {
-                    writer.WriteLine(logEntry);
-                }
+                //using (StreamWriter writer = new StreamWriter(logFilePath))
+                //{
+                //    writer.WriteLine(logEntry);
+                //}
+                CommonMethods.writeLogger.Info(logEntry);
             }
 
             return logEntry;
@@ -662,10 +669,11 @@ namespace Zero.OmronAssistant
             {
                 logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $", {item.Name}" + "[" + i + "]" + ", " + "写入失败";
                 //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
-                using (StreamWriter writer = new StreamWriter(logFilePath))
-                {
-                    writer.WriteLine(logEntry);
-                }
+                //using (StreamWriter writer = new StreamWriter(logFilePath))
+                //{
+                //    writer.WriteLine(logEntry);
+                //}
+                CommonMethods.writeLogger.Info(logEntry);
             }
 
             return logEntry;
@@ -789,6 +797,11 @@ namespace Zero.OmronAssistant
             // 批量读取PLC变量
             foreach (var item in variables)
             {
+                if (token.IsCancellationRequested)
+                {
+                    // 任务被取消
+                    break;
+                }
                 // 利用linq获取 CommonMethods.PLCVariables_Show 中的变量
                 var variable = CommonMethods.PLCVariables_Show.Where(v => v.Name == item.Name).FirstOrDefault();
 
@@ -806,7 +819,8 @@ namespace Zero.OmronAssistant
                         if (res == "读取失败")
                         {
                             logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $", {item.Name}" + "[" + i + "]" + ", " + res;
-                            System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                            //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                            CommonMethods.readLogger.Info(logEntry);
                         }
 
                     }
@@ -818,15 +832,17 @@ namespace Zero.OmronAssistant
                 if (variable.Value == "读取失败")
                 {
                     logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ", " + item.Name + ", " + variable.Value;
-                    System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                    //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                    CommonMethods.readLogger.Info(logEntry);
+
                 }
                 // 更新进度条的当前值
                 UpdateProgressBar();
 
-                // 任务被取消
-                token.ThrowIfCancellationRequested();
-            }
+                
 
+            }
+            
             // 断开连接
             cIP.DisConnect();
         }
@@ -855,6 +871,12 @@ namespace Zero.OmronAssistant
             // 批量读取PLC变量
             foreach (var item in variables)
             {
+                if (token.IsCancellationRequested)
+                {
+
+                    // 任务被取消
+                    break;
+                }
                 // 更新进度条的当前值
                 UpdateProgressBar();
                 // 利用linq获取 CommonMethods.PLCVariables_JSON 中的变量
@@ -868,7 +890,7 @@ namespace Zero.OmronAssistant
                 if (item.Name.Contains("[") && item.Name[item.Name.Length - 1] != ']' && !item.DataType.Contains("["))
                 {
                     result = cIP.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                    logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+                    logEntry =  LogToText2(logFilePath, result, logEntry, item);
                     continue;
                 }
                 // 对变量进行判断，判断是否为数组
@@ -884,7 +906,7 @@ namespace Zero.OmronAssistant
                     for (int i = dataType.Content2; i <= dataType.Content3; i++)
                     {
                         result = cIP.WriteSingleTag($"{item.Name}" + "[" + i + "]", dataType.Content1, values[i - dataType.Content2]).Content;
-                        logEntry = await LogToTextAsync(logFilePath, result, logEntry, item, i);
+                        logEntry = LogToText(logFilePath, result, logEntry, item, i);
 
                     }
                     continue;
@@ -892,14 +914,14 @@ namespace Zero.OmronAssistant
 
                 // 写入PLC变量
                 result = cIP.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+                logEntry = LogToText2(logFilePath, result, logEntry, item);
 
 
-                // 任务被取消
-                token.ThrowIfCancellationRequested();
+                
+
 
             }
-
+            
             // 断开连接
             cIP.DisConnect();
         }

@@ -16,6 +16,10 @@ namespace Zero.OmronAssistant
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // 配置log4net
+            log4net.Config.XmlConfigurator.Configure();
+
             Application.Run(new FrmMain());
         }
     }

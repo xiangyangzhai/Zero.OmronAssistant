@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +18,10 @@ namespace Zero.OmronAssistant
 
         // 创建一个全局变量用来作为从JSON文件恢复的列表
         public static List<PLCVariable> PLCVariables_JSON;
+
+        // log4net
+        public static readonly ILog readLogger = LogManager.GetLogger("ReadLogger");
+        public static readonly ILog writeLogger = LogManager.GetLogger("WriteLogger");
+        //public static readonly ILog writeLogger2 = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     }
 }
