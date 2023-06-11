@@ -198,10 +198,14 @@ namespace Zero.OmronAssistant
             {
                 Action updateProgressBarAction = () =>
                 {
-                    progressBar1.Maximum = lists.Count;
-                    progressBar1.Minimum = 0;
-                    progressBar1.Value = 0;
-                    isInitializedProgressBar = true;
+                    if (lists != null)
+                    {
+                        progressBar1.Maximum = lists.Count;
+                        progressBar1.Minimum = 0;
+                        progressBar1.Value = 0;
+                        isInitializedProgressBar = true;
+                    }
+
                 };
 
                 if (progressBar1.InvokeRequired)
@@ -283,6 +287,8 @@ namespace Zero.OmronAssistant
         {
             // 请求取消任务
             _tokenSource?.Cancel();
+            this.progressBar1.Value = 0;
+            this.progressBar1.Visible = false;
         }
         private void FrmMonitor_Load(object sender, EventArgs e)
         {
@@ -487,37 +493,42 @@ namespace Zero.OmronAssistant
                     JsonSerializer serializer = new JsonSerializer();
                     CommonMethods.PLCVariables_JSON = (List<PLCVariable>)serializer.Deserialize(file, typeof(List<PLCVariable>));
                 }
+                this.WriteTasksAsync();
             }
 
-            // 将 CommonMethods.PLCVariables_JSON 写入到 PLC
-            // 如果存在旧的 CancellationTokenSource，首先释放它
-            _writeTokenSource?.Dispose();
-            // 创建新的 CancellationTokenSource
-            _writeTokenSource = new CancellationTokenSource();
+            #region 旧代码
+            //// 将 CommonMethods.PLCVariables_JSON 写入到 PLC
+            //// 如果存在旧的 CancellationTokenSource，首先释放它
+            //_writeTokenSource?.Dispose();
+            //// 创建新的 CancellationTokenSource
+            //_writeTokenSource = new CancellationTokenSource();
 
-            var token = _writeTokenSource.Token;
-            var task = Task.Run(() =>
-            {
-                WriteVariablesData(token);
+            //var token = _writeTokenSource.Token;
+            //var task = Task.Run(() =>
+            //{
+            //    WriteVariablesData(token);
 
-            }, token);
+            //}, token);
 
-            task.ContinueWith(t =>
-            {
-                // 通信完成，利用对话框提示
-                MessageBox.Show("通信完成");
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            //task.ContinueWith(t =>
+            //{
+            //    // 通信完成，利用对话框提示
+            //    MessageBox.Show("通信完成");
+            //}, TaskContinuationOptions.OnlyOnRanToCompletion);
 
-            // 任务取消时，对进度条进行隐藏并清零，并调用btnDisConnect_Click
-            task.ContinueWith(t =>
-            {
-                disProgressBar();
+            //// 任务取消时，对进度条进行隐藏并清零，并调用btnDisConnect_Click
+            //task.ContinueWith(t =>
+            //{
+            //    disProgressBar();
 
-                disConnect();
-            }, TaskContinuationOptions.OnlyOnCanceled);
+            //    disConnect();
+            //}, TaskContinuationOptions.OnlyOnCanceled);
+            #endregion
+
+
         }
 
-        private void WriteVariablesData(CancellationToken token)
+        private async void WriteVariablesData(CancellationToken token)
         {
             // 显示进度条
             ShowProgressBar();
@@ -574,7 +585,7 @@ namespace Zero.OmronAssistant
                 if (item.Name.Contains("[") && item.Name[item.Name.Length - 1] != ']' && !item.DataType.Contains("["))
                 {
                     result = cip.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                    logEntry = LogToText2(logFilePath, result, logEntry, item);
+                    logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
                     continue;
                 }
                 // 对变量进行判断，判断是否为数组
@@ -590,14 +601,14 @@ namespace Zero.OmronAssistant
                     for (int i = dataType.Content2; i <= dataType.Content3; i++)
                     {
                         result = cip.WriteSingleTag($"{item.Name}" + "[" + i + "]", dataType.Content1, values[i - dataType.Content2]).Content;
-                        logEntry = LogToText(logFilePath, result, logEntry, item, i);
+                        logEntry = await LogToTextAsync(logFilePath, result, logEntry, item, i);
 
                     }
                     continue;
                 }
                 // 写入PLC变量
                 result = cip.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
-                logEntry = LogToText2(logFilePath, result, logEntry, item);
+                logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
                 
 
                 // 任务被取消
@@ -616,22 +627,68 @@ namespace Zero.OmronAssistant
             if (result != "写入成功")
             {
                 logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ", " + item.Name + ", " + "写入失败";
-                System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                using (StreamWriter writer = new StreamWriter(logFilePath))
+                {
+                    writer.WriteLine(logEntry);
+                }
             }
 
             return logEntry;
         }
+
+        
+        private static async Task<string> LogToText2Async(string logFilePath, string result, string logEntry, PLCVariable item)
+        {
+            if (result != "写入成功")
+            {
+                logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ", " + item.Name + ", " + "写入失败";
+                await Task.Run(() =>
+                {
+                    using (StreamWriter writer = new StreamWriter(logFilePath))
+                    {
+                        writer.WriteLine(logEntry);
+                    }
+                });
+            }
+            return logEntry;
+        }
+
+
 
         private static string LogToText(string logFilePath, string result, string logEntry, PLCVariable item, int i)
         {
             if (result != "写入成功")
             {
                 logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $", {item.Name}" + "[" + i + "]" + ", " + "写入失败";
-                System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                //System.IO.File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
+                using (StreamWriter writer = new StreamWriter(logFilePath))
+                {
+                    writer.WriteLine(logEntry);
+                }
             }
 
             return logEntry;
         }
+
+        private async Task<string> LogToTextAsync(string logFilePath, string result, string logEntry, PLCVariable item, int i)
+        {
+            if (result != "写入成功")
+            {
+                logEntry = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + $", {item.Name}" + "[" + i + "]" + ", " + "写入失败";
+
+                await Task.Run(() =>
+                {
+                    using (StreamWriter writer = new StreamWriter(logFilePath))
+                    {
+                        writer.WriteLine(logEntry);
+                    }
+                });
+            }
+
+            return logEntry;
+        }
+
 
         private void btnStopRestore_Click(object sender, EventArgs e)
         {
@@ -643,6 +700,8 @@ namespace Zero.OmronAssistant
 
             // 取消任务
             _writeTokenSource?.Cancel();
+            this.progressBar1.Value = 0;
+            this.progressBar1.Visible = false;
         }
 
         public async Task StartTasksAsync()
@@ -675,6 +734,35 @@ namespace Zero.OmronAssistant
 
         }
 
+        public async Task WriteTasksAsync()
+        {
+            // 如果存在旧的 CancellationTokenSource，首先释放它
+            _writeTokenSource?.Dispose();
+            // 创建新的 CancellationTokenSource
+            _writeTokenSource = new CancellationTokenSource();
+
+            var token = _writeTokenSource.Token;
+
+            // 分割PLC变量列表为五个部分
+            var segments = SplitVariableList(CommonMethods.PLCVariables_JSON, 5);
+
+            // 并行执行任务
+
+            List<Task> tasks = new List<Task>();
+            foreach (var segment in segments)
+            {
+                tasks.Add(Task.Run(() => WriteVariablesData2(segment, token)));
+            }
+
+            await Task.WhenAll(tasks);
+
+            // 所以线程都完成后，弹窗提示
+
+            MessageBox.Show("通信完成");
+
+            disProgressBar();
+
+        }
         private void  ReadVariablesData2(List<PLCVariable> variables, CancellationToken token)
         {
             
@@ -737,6 +825,79 @@ namespace Zero.OmronAssistant
 
                 // 任务被取消
                 token.ThrowIfCancellationRequested();
+            }
+
+            // 断开连接
+            cIP.DisConnect();
+        }
+
+        private async void WriteVariablesData2(List<PLCVariable> variables, CancellationToken token)
+        {
+            // 更新进度条的最大值 最小值 当前值
+            InitionalizeProgressBar(CommonMethods.PLCVariables_JSON);
+
+            // 显示进度条
+            ShowProgressBar();
+
+            CIP cIP = new CIP();
+
+            // 连接PLC
+            cIP.Connect(this.txtIP.Text.Trim(), Convert.ToInt32(this.txtPort.Text.Trim()));
+
+            //注册会话
+            cIP.Regist();
+
+            string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string directoryPath = System.IO.Path.GetDirectoryName(assemblyPath);
+            string logFilePath = directoryPath + "\\log\\Write.log";
+            string result = string.Empty;
+            string logEntry = string.Empty;
+            // 批量读取PLC变量
+            foreach (var item in variables)
+            {
+                // 更新进度条的当前值
+                UpdateProgressBar();
+                // 利用linq获取 CommonMethods.PLCVariables_JSON 中的变量
+                var variable = CommonMethods.PLCVariables_JSON.Where(v => v.Name == item.Name).FirstOrDefault();
+
+                if (variable.Value == "读取失败")
+                {
+                    continue;
+                }
+
+                if (item.Name.Contains("[") && item.Name[item.Name.Length - 1] != ']' && !item.DataType.Contains("["))
+                {
+                    result = cIP.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
+                    logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+                    continue;
+                }
+                // 对变量进行判断，判断是否为数组
+                if (item.DataType.Contains("["))
+                {
+                    var dataType = CIP.ParseTagType(item.DataType);
+
+                    //判断 tagName最后一个字符是否是"]"
+
+
+                    string[] values = item.Value.Split(',');
+                    // 写入PLC数组变量
+                    for (int i = dataType.Content2; i <= dataType.Content3; i++)
+                    {
+                        result = cIP.WriteSingleTag($"{item.Name}" + "[" + i + "]", dataType.Content1, values[i - dataType.Content2]).Content;
+                        logEntry = await LogToTextAsync(logFilePath, result, logEntry, item, i);
+
+                    }
+                    continue;
+                }
+
+                // 写入PLC变量
+                result = cIP.WriteSingleTag(item.Name, item.DataType, item.Value).Content;
+                logEntry = await LogToText2Async(logFilePath, result, logEntry, item);
+
+
+                // 任务被取消
+                token.ThrowIfCancellationRequested();
+
             }
 
             // 断开连接
