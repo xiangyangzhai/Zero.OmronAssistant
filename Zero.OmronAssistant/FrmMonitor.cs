@@ -196,8 +196,11 @@ namespace Zero.OmronAssistant
 
         private void UpdateProgressBar()
         {
+            
             if (progressBar1.InvokeRequired)
             {
+                if (progressBar1.Value > progressBar1.Maximum) return;
+
                 progressBar1.Invoke(new MethodInvoker(delegate
                 {
                     progressBar1.Value++;
@@ -205,6 +208,7 @@ namespace Zero.OmronAssistant
             }
             else
             {
+                if (progressBar1.Value > progressBar1.Maximum) return;
                 progressBar1.Value++;
             }
         }
